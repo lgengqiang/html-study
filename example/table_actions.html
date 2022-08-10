@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html>
+
+<head>
+    <meta charset="utf-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1">
+    <title>Table with Add\Edit\Delete actions</title>
+
+    <!-- Bootstrap 5.1.3 -->
+    <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/css/bootstrap.min.css" rel="stylesheet" />
+
+    <!-- Bootstrap Table 1.20.0 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-table@1.20.0/dist/bootstrap-table.min.css">
+
+    <!-- Bootstrap Icons 1.8.3 -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.8.3/font/bootstrap-icons.css">
+
+</head>
+
+<body style="height: 100%;">
+    <div class="container-xl" style="height: 100%;">
+
+        <h4 class="mt-4 text-center">Table with Add\Edit\Delete actions</h4>
+        <div class="mt-3">
+            <div id="toolbar" class="m-0 p-0">
+                <button type="button" id="buttonAdd" class="btn btn-primary btn-sm">Add</button>
+            </div>
+            <table id="tableData" class="table table-sm" data-toolbar="#toolbar">
+                <thead>
+                    <tr>
+                        <th data-field="Name">Name</th>
+                        <th data-field="Email">Email Address</th>
+                        <th data-field="Office">Office Location</th>
+                        <th data-formatter="tableActionFormatter">Action</th>
+                    </tr>
+                </thread>
+            </table>
+        </div>
+
+        <!-- Modal Dialog : User Dialog -->
+        <div class="modal" id="modalUser" tabindex="-1">
+            <div class="modal-dialog modal-dialog-centered">
+                <div class="modal-content">
+                    <div class="modal-header px-5 border-bottom-0">
+                        <h4 id="dialogTitle" class="mb-0">Add User</h4>
+                        <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+                    </div>
+                    <div class="modal-body px-5 pb-5">
+                        <form>
+                            <input type="hidden" id="inputIndex">
+                            <input type="hidden" id="inputRow">
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control rounded-3" id="inputUserName" placeholder="Your name...">
+                                <label for="inputUserName">Name</label>
+                            </div>
+                            <div class="form-floating mb-3">
+                                <input type="email" class="form-control rounded-3" id="inputEmail" placeholder="Your email address...">
+                                <label for="inputEmail">Email Address</label>
+                            </div>
+                            <div class="form-floating mb-3">
+                                <input type="text" class="form-control rounded-3" id="inputOffice" placeholder="Your office location...">
+                                <label for="inputOffice">Office Location</label>
+                            </div>
+                            <button type="button" id="buttonSave" class="btn btn-primary w-100 rounded-3 mb-3">Save</button>
+                        </form>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- Toast: User added\saved -->
+        <div class="position-fixed bottom-0 end-0 p-4">
+            <div id="toastUser" class="toast">
+                <div class="toast-header">
+                    <strong id="textMessage" class="me-auto"></strong>
+                    <button type="button" class="btn-close" data-bs-dismiss="toast"></button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- jQuery 3.6.0 -->
+    <script src="https://cdn.jsdelivr.net/npm/jquery@3.6.0/dist/jquery.min.js"></script>
+
+    <!-- Bootstrap 5.1.3 -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.1.3/dist/js/bootstrap.bundle.min.js"></script>
+
+    <!-- Bootstrap Table 1.20.0 -->
+    <script src="https://cdn.jsdelivr.net/npm/bootstrap-table@1.20.0/dist/bootstrap-table.min.js"></script>
+
+    <script type="text/javascript">
+
+        function tableActionFormatter(value, row, index, field) {
+            return [
+                '<div>',
+                `<button type="button" class="btn btn-outline-info btn-sm ms-1" onclick='editAction(${index}, ${JSON.stringify(row)})'>Edit</button>`,
+                `<button type="button" class="btn btn-outline-danger btn-sm ms-1" onclick="removeAction(${index})">Delete</button>`,
+                '</div>'
+            ].join("");
+        }
+
+        function addAction() {
+            $("#inputIndex").val(-1);
+            $("#inputRow").val("");
+            $("#inputUserName").val("");
+            $("#inputEmail").val("");
+            $("#inputOffice").val("");
+            $("#dialogTitle").text("Add User");
+            var dialog = bootstrap.Modal.getOrCreateInstance(document.getElementById("modalUser"));
+            dialog.show();
+        }
+
+        function editAction(index, row) {
+            $("#inputIndex").val(index);
+            $("#inputRow").val(JSON.stringify(row));
+            $("#inputUserName").val(row.Name);
+            $("#inputEmail").val(row.Email);
+            $("#inputOffice").val(row.Office);
+            $("#dialogTitle").text("Edit User");
+            var dialog = bootstrap.Modal.getOrCreateInstance(document.getElementById("modalUser"));
+            dialog.show();
+        }
+
+        function removeAction(index) {
+            $("#tableData").bootstrapTable("remove", { field: "$index", values: [index] });
+        }
+
+        function isNullOrWhitespace(s) {
+            if (str != null && typeof str === "string" && str.length > 0) {
+                return false;
+            } else {
+                return true;
+            }
+        }
+
+        function validate() {
+            var userName = $("#inputUserName").val();
+            var email = $("#inputEmail").val();
+            var office = $("#inputOffice").val();
+            if (isNullOrWhitespace(userName) == true && isNullOrWhitespace(email) == true && isNullOrWhitespace(office) == true) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        $(function () {
+
+            var data = [
+                {
+                    ID: 1,
+                    Name: "Jeff Firrelli",
+                    Email: "jfirrelli@example.com",
+                    Office: "San Francisco"
+                },
+                {
+                    ID: 2,
+                    Name: "Andy Fixter",
+                    Email: "afixter@classicmodelcars.com",
+                    Office: "London"
+                },
+                {
+                    ID: 3,
+                    Name: "Peter Marsh",
+                    Email: "pmarsh@classicmodelcars.com",
+                    Office: "Tokyo"
+                },
+                {
+                    ID: 4,
+                    Name: "Martin Gerard",
+                    Email: "mgerard@classicmodelcars.com",
+                    Office: "Paris"
+                }
+            ];
+            $("#tableData").bootstrapTable({ data: data });
+
+            $("#buttonAdd").click(function () {
+                addAction();
+            });
+            
+            $("#buttonSave").click(function () {
+                var index = $("#inputIndex").val();
+                if (index == -1) {
+                    // Add a new user
+
+                    var userName = $("#inputUserName").val();
+                    var email = $("#inputEmail").val();
+                    var office = $("#inputOffice").val();
+
+                    var data = $("#tableData").bootstrapTable("getData");
+                    data.push({ Name: userName, Email: email, Office: office });
+                    $("#tableData").bootstrapTable("load", data);
+
+                    // $("#tableData").bootstrapTable("append", {
+                    //     "ID": 0,
+                    //     Name: userName,
+                    //     Email: email,
+                    //     Office: office
+                    // });
+
+                    $("#textMessage").text(`User added: ${userName}`);
+                } else {
+                    // Edit a user
+                    var data = JSON.parse($("#inputRow").val());
+                    data.Name = $("#inputUserName").val();
+                    data.Email = $("#inputEmail").val();
+                    data.Office = $("#inputOffice").val();
+
+                    $("#tableData").bootstrapTable("updateRow", { index: index, row: data });
+
+                    $("#textMessage").text(`User saved: ${data.Name}`);
+                }
+
+                var dialog = bootstrap.Modal.getInstance(document.getElementById("modalUser"));
+                dialog.hide();
+                
+                var toast = new bootstrap.Toast($("#toastUser"));
+                toast.show();
+            });
+        })
+    </script>
+</body>
+
+</html>
